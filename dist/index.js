@@ -116,6 +116,59 @@ app.get('/downloads', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ err });
     }
 }));
+app.get('/pauseAll', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield fetch('http://localhost:6800/jsonrpc', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                method: 'aria2.pauseAll',
+                id: 'stop_all_torrents',
+                jsonrpc: '2.0'
+            })
+        });
+        const data = yield response.json();
+        res.json(data.result);
+    }
+    catch (err) {
+        res.status(500).json({ err });
+    }
+}));
+app.get('/pauseAndPurgeAll', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const response = yield fetch('http://localhost:6800/jsonrpc', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                method: 'aria2.pauseAll',
+                id: 'stop_all_torrents',
+                jsonrpc: '2.0'
+            })
+        });
+        const data = yield response.json();
+        console.log('Pause first');
+    }
+    catch (err) {
+        res.status(500).json({ err });
+    }
+    try {
+        const response = yield fetch('http://localhost:6800/jsonrpc', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                method: 'aria2.purgeDownloadResult',
+                id: 'purge_completed_torrents',
+                jsonrpc: '2.0'
+            })
+        });
+        const data = yield response.json();
+        res.json(data.result);
+        console.log("Purge all");
+    }
+    catch (err) {
+        res.status(500).json({ err });
+    }
+}));
 app.listen(3000, () => {
     console.log("Server listening on port 3000");
 });

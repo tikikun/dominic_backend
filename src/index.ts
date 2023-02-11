@@ -5,11 +5,10 @@ const app = express();
 
 app.use(express.json());
 
-
 app.get("/downloadfile", async (req: Request, res: Response) => {
   const uri = String(req.query.uri);
-  const folderName = req.query.folderName ? String(req.query.folderName) : '';
-  console.log(folderName)
+  const folderName = req.query.folderName ? String(req.query.folderName) : "";
+  console.log(folderName);
   if (!uri) {
     return res.send(
       JSON.stringify({
@@ -21,7 +20,7 @@ app.get("/downloadfile", async (req: Request, res: Response) => {
   console.log(req.method, req.url, `Here is the uri for the file ${uri}`);
 
   try {
-    const aria_response = await sendMagnetToAria2c(uri,folderName);
+    const aria_response = await sendMagnetToAria2c(uri, folderName);
     if ("error" in aria_response) {
       console.log("send the issue");
       res.send(
@@ -32,7 +31,7 @@ app.get("/downloadfile", async (req: Request, res: Response) => {
     } else {
       res.send(
         JSON.stringify({
-          message: `Success, the job ID is: ${aria_response.id  }`,
+          message: `Success, the job ID is: ${aria_response.id}`,
         })
       );
     }
@@ -75,17 +74,16 @@ app.get("/alantest", async (req: Request, res: Response, next) => {
   res.send("thunghiem nay ");
 });
 
-
-app.get('/downloads', async (req, res) => {
+app.get("/downloads", async (req: Request, res: Response) => {
   try {
-    const response = await fetch('http://localhost:6800/jsonrpc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("http://localhost:6800/jsonrpc", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        method: 'aria2.tellActive',
-        id: 'downloads',
-        jsonrpc: '2.0'
-      })
+        method: "aria2.tellActive",
+        id: "downloads",
+        jsonrpc: "2.0",
+      }),
     });
     const data = await response.json();
     res.json(data.result);
@@ -94,19 +92,35 @@ app.get('/downloads', async (req, res) => {
   }
 });
 
-
+app.get("/pauseAll", async (req: Request, res: Response) => {
+  try {
+    const response = await fetch("http://localhost:6800/jsonrpc", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        method: "aria2.pauseAll",
+        id: "stop_all_torrents",
+        jsonrpc: "2.0",
+      }),
+    });
+    const data = await response.json();
+    res.json(data.result);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+});
 
 app.listen(3000, () => {
   console.log("Server listening on port 3000");
 });
 
-
-
 async function sendMagnetToAria2c(uri: string, folder: string) {
-  const rootDir = '/Volumes/Tuandisk';
+  const rootDir = "/Volumes/Tuandisk";
   const aria2cUrl = "http://localhost:6800/jsonrpc";
-  const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  console.log(`${rootDir}/${folder}`)
+  const id =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+  console.log(`${rootDir}/${folder}`);
   const options = {
     method: "POST",
     headers: {
@@ -116,7 +130,7 @@ async function sendMagnetToAria2c(uri: string, folder: string) {
       jsonrpc: "2.0",
       id: id,
       method: "aria2.addUri",
-      params: [[uri], {dir: `${rootDir}/${folder}`}],
+      params: [[uri], { dir: `${rootDir}/${folder}` }],
     }),
   };
 
